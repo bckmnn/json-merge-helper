@@ -48,7 +48,7 @@ func main() {
 		combinedIds = append(combinedIds, otherJson.Ids...)
 		allIds := sgjsonformat.RemoveDuplicates(combinedIds)
 
-		combinedEntities := make([]sgjsonformat.Entity, len(allIds))
+		combinedEntities := make([]sgjsonformat.Entity, 0)
 
 		for _, id := range allIds {
 			currentE := currentJson.ById[id]
@@ -56,13 +56,19 @@ func main() {
 			currentE.Compare(&otherE)
 
 			mergedE := currentE.Merge(&otherE)
-			combinedEntities = append(combinedEntities, mergedE)
+			if mergedE.IsValid {
+				combinedEntities = append(combinedEntities, mergedE)
+			} else {
+				panic("bad boy")
+			}
+
 		}
 
 		currentJson.Entities = combinedEntities
 		err = currentJson.Write()
 		if err != nil {
 			fmt.Printf("[Error] %v\n", err)
+			panic(err)
 		}
 	}
 

@@ -57,7 +57,7 @@ func NewSgJsonFile(path string) *SgJsonFile {
 }
 
 func (j *SgJsonFile) Write() error {
-	jsonFile, err := os.Open(j.filepath)
+	jsonFile, err := os.Create(j.filepath)
 
 	if err != nil {
 		return fmt.Errorf("write: failed opening json file: %w", err)
@@ -123,7 +123,7 @@ func (entity *Entity) Merge(other *Entity) Entity {
 	if !diff.HasDifferences {
 		return *entity
 	} else {
-		return *entity
+		return *other
 	}
 }
 
