@@ -107,7 +107,7 @@ type Entity struct {
 	Name          string       `json:"name"`
 	Selectors     []string     `json:"selectors"`
 	Tags          []string     `json:"tags"`
-	IsValid       bool
+	IsValid       bool         `json:"-"`
 }
 
 func (entity *Entity) Merge(other *Entity) Entity {
