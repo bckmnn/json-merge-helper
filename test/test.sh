@@ -16,14 +16,14 @@ git branch -D demo-branch-2
 # Create 'resources.elements.json' on branch 1
 git checkout -b demo-branch-1
 cp ../testdata/resources.elements.A.json resources.elements.json
-git add test/resources.elements.json
+git add resources.elements.json
 git commit -m"demo-branch-1: added resources.elements.json"
 
 # Create 'resources.elements.json' on branch 2
 git checkout main
 git checkout -b demo-branch-2
 cp ../testdata/resources.elements.B.json resources.elements.json
-git add test/resources.elements.json
+git add resources.elements.json
 git commit -m"demo-branch-2: added resources.elements.json"
 
 # Merge the two branches, causing a conflict
