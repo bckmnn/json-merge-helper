@@ -18,6 +18,10 @@ func main() {
 		current := argsWithoutProg[1]
 		other := argsWithoutProg[2]
 
+		fmt.Println(ancestor)
+		fmt.Println(current)
+		fmt.Println(other)
+
 		fmt.Printf("ancestor: %s\n", ancestor)
 		ancestorJson := sgjsonformat.NewSgJsonFile(ancestor)
 		err := ancestorJson.Read()
