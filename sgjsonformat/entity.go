@@ -96,23 +96,37 @@ type Entity struct {
 
 func (entity *Entity) Compare(other *Entity) {
 	if !entity.IsValid {
-		fmt.Printf("%15s: %38s ≠ %-38s\n", "Id", "- missing -", other.Id)
+		fmt.Printf("%20s: %38s ≠ %-38s\n", "================= Id", "- missing -", other.Id)
 		return
 	} else if !other.IsValid {
-		fmt.Printf("%15s: %38s ≠ %-38s\n", "Id", entity.Id, "- missing -")
+		fmt.Printf("%20s: %38s ≠ %-38s\n", "================= Id", entity.Id, "- missing -")
 		return
 	} else if !entity.IsValid && !other.IsValid {
-		fmt.Println(" both entities invalid !!")
+		fmt.Println("!!!!!!! both entities invalid !!!!!")
 		return
 	}
 
 	diff := NewEntityDiff(entity, other)
 	if diff.HasDifferences {
-		fmt.Printf("%15s: %38s ≠ %-38s\n", "Id", entity.Id, other.Id)
-		if diff.MetaIsDifferent {
-			for d := range diff.GetMetaDifferences() {
-				fmt.Println(d)
+		fmt.Printf("%20s: %38s ≠ %-38s\n", "================= Id", entity.Id, other.Id)
+		if diff.NameIsDifferent {
+			fmt.Printf("%20s: %38s ≠ %-38s\n", "name", entity.Name, other.Name)
+		}
+		if diff.DataIsDifferent {
+			for _, d := range diff.GetDataDifferences() {
+				fmt.Print(d)
 			}
+		}
+		if diff.MetaIsDifferent {
+			for _, d := range diff.GetMetaDifferences() {
+				fmt.Print(d)
+			}
+		}
+		if diff.TagsIsDifferent {
+			fmt.Println("tags differ")
+		}
+		if diff.SelectorsIsDifferent {
+			fmt.Println("selectors differ")
 		}
 	}
 
@@ -134,6 +148,10 @@ type EntityDiff struct {
 	FormatVersionIsDifferent bool
 }
 
+func (diff *EntityDiff) GetDataDifferences() []string {
+	return diff.a.Data.Differences(&diff.b.Data)
+}
+
 func (diff *EntityDiff) GetMetaDifferences() []string {
 	return diff.a.Meta.Differences(&diff.b.Meta)
 }
@@ -151,6 +169,7 @@ func NewEntityDiff(a *Entity, b *Entity) *EntityDiff {
 		b: b,
 
 		NameIsDifferent:          a.Name != b.Name,
+		DataIsDifferent:          !a.Data.Equal(&b.Data),
 		MetaIsDifferent:          !a.Meta.Equal(&b.Meta),
 		SelectorsIsDifferent:     !unorderdEqual(a.Selectors, b.Selectors),
 		DomainIsDifferent:        a.Domain != b.Domain,
@@ -166,6 +185,65 @@ func NewEntityDiff(a *Entity, b *Entity) *EntityDiff {
 
 // custom data type to accomodate json array & json object usage of data field
 type EntityData []EntityDataEntry
+
+func (data *EntityData) Differences(other *EntityData) []string {
+	firstDataByKey := make(map[string]EntityDataEntry)
+	secondDataByKey := make(map[string]EntityDataEntry)
+	keys := make([]string, 0)
+
+	for _, entry := range *data {
+		keys = append(keys, entry.Name)
+		firstDataByKey[entry.Name] = entry
+	}
+	for _, entry := range *other {
+		keys = append(keys, entry.Name)
+		secondDataByKey[entry.Name] = entry
+	}
+	keys = RemoveDuplicates(keys)
+
+	diffs := make([]string, 0)
+	for _, k := range keys {
+		a := firstDataByKey[k]
+		b := secondDataByKey[k]
+		if a != b {
+			if a.Type != b.Type {
+				diff := fmt.Sprintf("%20s: %38v ≠ %-38v\n", "data."+k+".type", a.Type, b.Type)
+				diffs = append(diffs, diff)
+			}
+			if a.Value != b.Value {
+				diff := fmt.Sprintf("%20s: %38v ≠ %-38v\n", "data."+k+".value", a.Value, b.Value)
+				diffs = append(diffs, diff)
+			}
+		}
+	}
+	return diffs
+}
+
+func (data *EntityData) Equal(other *EntityData) bool {
+	if len(*data) != len(*other) {
+		return false
+	}
+
+	firstDataByKey := make(map[string]EntityDataEntry)
+	secondDataByKey := make(map[string]EntityDataEntry)
+	keys := make([]string, 0)
+
+	for _, entry := range *data {
+		keys = append(keys, entry.Name)
+		firstDataByKey[entry.Name] = entry
+	}
+	for _, entry := range *other {
+		keys = append(keys, entry.Name)
+		secondDataByKey[entry.Name] = entry
+	}
+	keys = RemoveDuplicates(keys)
+	for _, k := range keys {
+		if firstDataByKey[k] != secondDataByKey[k] {
+			return false
+		}
+	}
+	return true
+}
 
 // custom json unmarshaler for EntityData
 // will always return a list of EntityDataEntries even when the data field in json
@@ -215,7 +293,7 @@ func (meta *EntityMeta) Differences(other *EntityMeta) []string {
 		a := firstMetaByKey[k]
 		b := secondMetaByKey[k]
 		if a != b {
-			diff := fmt.Sprintf("%-15s: %38s ≠ %-38s\n", "meta."+k, a, b)
+			diff := fmt.Sprintf("%20s: %38s ≠ %-38s\n", "meta."+k, a, b)
 			diffs = append(diffs, diff)
 		}
 	}

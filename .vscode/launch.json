@@ -10,10 +10,8 @@
             "request": "launch",
             "mode": "debug",
             "program": "main.go",
-            "cwd": "${workspaceFolder}",
-            "args": ["testdata/resources.elements.A.json","testdata/resources.elements.A.json"," testdata/resources.elements.B.json"]
+            "args": ["${workspaceFolder}/testdata/resources.elements.A.json","testdata/resources.elements.A.json","${workspaceFolder}/testdata/resources.elements.B.json"]
         },
-
         {
             "name": "Launch with themes",
             "type": "go",
@@ -21,8 +19,8 @@
             "mode": "debug",
             "showLog": true,
             "program": "main.go",
-            "cwd": "${workspaceFolder}",
-            "args": ["testdata/styles.themes.A.json","testdata/styles.themes.A.json"," testdata/styles.themes.B.json"]
+            "args": ["${workspaceFolder}/testdata/styles.themes.A.json","${workspaceFolder}/testdata/styles.themes.A.json","${workspaceFolder}/testdata/styles.themes.B.json"],
+            "trace": "log",
         }
     ]
 }
