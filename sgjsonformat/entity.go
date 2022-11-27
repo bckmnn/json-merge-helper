@@ -99,14 +99,14 @@ func (j *SgJsonFile) Read() error {
 
 // A Entity is the default type of an SgJsonFile entry.
 type Entity struct {
-	Id            string       `json:"id"`
-	Name          string       `json:"name"`
 	Data          EntityData   `json:"data"`
-	Meta          EntityMeta   `json:"meta"`
-	Selectors     []string     `json:"selectors"`
 	Domain        EntityDomain `json:"domain"`
-	Tags          []string     `json:"tags"`
 	FormatVersion string       `json:"formatVersion"`
+	Id            string       `json:"id"`
+	Meta          EntityMeta   `json:"meta"`
+	Name          string       `json:"name"`
+	Selectors     []string     `json:"selectors"`
+	Tags          []string     `json:"tags"`
 	IsValid       bool
 }
 
@@ -360,6 +360,6 @@ func (meta *EntityMeta) Equal(other *EntityMeta) bool {
 }
 
 type EntityMetaEntry struct {
-	Value string `json:"value"`
 	Kind  string `json:"kind"`
+	Value string `json:"value"`
 }
