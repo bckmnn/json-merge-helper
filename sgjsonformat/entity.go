@@ -56,6 +56,22 @@ func NewSgJsonFile(path string) *SgJsonFile {
 	return j
 }
 
+func (j *SgJsonFile) Write() error {
+	jsonFile, err := os.Open(j.filepath)
+
+	if err != nil {
+		return fmt.Errorf("write: failed opening json file: %w", err)
+	}
+	defer jsonFile.Close()
+	encoder := json.NewEncoder(jsonFile)
+	encoder.SetIndent("", "    ")
+	err = encoder.Encode(j.Entities)
+	if err != nil {
+		return fmt.Errorf("write: failed encoding entities: %w", err)
+	}
+	return nil
+}
+
 func (j *SgJsonFile) Read() error {
 	jsonFile, err := os.Open(j.filepath)
 
@@ -92,6 +108,23 @@ type Entity struct {
 	Tags          []string     `json:"tags"`
 	FormatVersion string       `json:"formatVersion"`
 	IsValid       bool
+}
+
+func (entity *Entity) Merge(other *Entity) Entity {
+	if !entity.IsValid {
+		return *other
+	} else if !other.IsValid {
+		return *entity
+	} else if !entity.IsValid && !other.IsValid {
+		fmt.Println("!!!!!!! both entities invalid !!!!!")
+		return Entity{}
+	}
+	diff := NewEntityDiff(entity, other)
+	if !diff.HasDifferences {
+		return *entity
+	} else {
+		return *entity
+	}
 }
 
 func (entity *Entity) Compare(other *Entity) {

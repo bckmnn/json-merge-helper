@@ -43,15 +43,26 @@ func main() {
 			fmt.Printf("[Error] %v\n", err)
 		}
 
-		combiendIds := ancestorJson.Ids
-		combiendIds = append(combiendIds, currentJson.Ids...)
-		combiendIds = append(combiendIds, otherJson.Ids...)
-		allIds := sgjsonformat.RemoveDuplicates(combiendIds)
+		combinedIds := ancestorJson.Ids
+		combinedIds = append(combinedIds, currentJson.Ids...)
+		combinedIds = append(combinedIds, otherJson.Ids...)
+		allIds := sgjsonformat.RemoveDuplicates(combinedIds)
+
+		combinedEntities := make([]sgjsonformat.Entity, len(allIds))
 
 		for _, id := range allIds {
 			currentE := currentJson.ById[id]
 			otherE := otherJson.ById[id]
 			currentE.Compare(&otherE)
+
+			mergedE := currentE.Merge(&otherE)
+			combinedEntities = append(combinedEntities, mergedE)
+		}
+
+		currentJson.Entities = combinedEntities
+		err = currentJson.Write()
+		if err != nil {
+			fmt.Printf("[Error] %v\n", err)
 		}
 	}
 
